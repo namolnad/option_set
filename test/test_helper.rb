@@ -12,7 +12,6 @@ require "active_record"
 ActiveRecord::Base.logger = Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 ActiveRecord::Migration.verbose = ENV["VERBOSE"]
 
-# migrations
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
 ActiveRecord::Schema.define do
@@ -22,9 +21,9 @@ ActiveRecord::Schema.define do
 end
 
 class AdminPermission < OptionSet::OptionSet
-  View(1 << 0)
-  Edit(1 << 1)
-  Delete(1 << 2)
+  view 1 << 0
+  edit 1 << 1
+  delete 1 << 2
 end
 
 class User < ActiveRecord::Base

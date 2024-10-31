@@ -6,19 +6,7 @@ module OptionSet
   class OptionSet
     include Enumerable
 
-    attr_reader :name, :value, :short_name
-
-    alias inspect name
-
-    def initialize(name, value)
-      @short_name = name.to_s.gsub(/([a-z])([A-Z])/, '\1_\2').downcase!
-      @name = "#{self.class.name}::#{name}"
-      @value = value
-    end
-
     class << self
-      attr_reader :options
-
       # rubocop:disable Lint/MissingSuper
       def inherited(child)
         TracePoint.new(:end) do |tp|
@@ -30,28 +18,22 @@ module OptionSet
 
         child.instance_eval do
           @values = {}
-          @options = []
+          @options = {}
         end
       end
       # rubocop:enable Lint/MissingSuper
 
-      def const_missing(name)
+      # def method_missing(name, ...)
+      def method_missing(name, value, ...)
         return super if frozen?
 
-        new(name)
-      end
-
-      def method_missing(name, ...)
-        return super if frozen?
-        return super unless name[0] =~ /[A-Z]/
-
-        new(name, ...)
+        add_option(name, value)
       end
 
       def respond_to_missing?(name, _)
         return super if frozen?
 
-        name[0] =~ /[A-Z]/
+        true
       end
 
       # returns the union of the two masks
@@ -71,45 +53,49 @@ module OptionSet
 
       # returns the mask after adding the option
       def add(option, mask)
-        mask | const_from_val(option).value
+        mask | @options[option].value
       end
 
       # returns the mask after removing the option
       def remove(option, mask)
-        mask & ~const_from_val(option).value
+        mask & ~@options[option].value
       end
 
       # Casts the included mask to the corresponding options
       def cast(mask)
-        @options.select { |option| mask & option.value == option.value }.map(&:short_name).map(&:to_sym)
+        options.select { |option| mask & option.value == option.value }.map(&:name).map(&:to_sym)
       end
 
       # Returns the mask for the included options
       def mask(options)
-        options.map { |o| const_from_val(o) }.map { |option| @values[option.value].value }.reduce(0, :|)
+        options.map { |o| @options[o].value }.reduce(0, :|)
       end
 
       # Does the mask include the provided option?
       def include?(option, mask)
-        val = const_from_val(option).value
+        val = @options[option].value
         mask & val == val
       end
 
       def all
-        @options.map(&:short_name).map(&:to_sym)
+        options.map(&:name).map(&:to_sym)
       end
 
       def values
         @values.keys
       end
 
-      def each(&)
-        @options.each(&)
+      def each(&block)
+        options.each(&block)
+      end
+
+      def options
+        @options.values
       end
 
       private
 
-      def new(name, val = nil, &)
+      def add_option(name, val = nil)
         value = val || (1 << @options.length)
 
         if self == OptionSet
@@ -117,7 +103,7 @@ module OptionSet
                 "You can't add values to the abstract OptionSet class itself."
         end
 
-        if const_defined?(name)
+        if @options[name]
           raise Error,
                 "Name conflict: '#{self.name}::#{name}' is already defined."
         end
@@ -127,21 +113,10 @@ module OptionSet
                 "Value conflict: the value '#{value}' is defined for '#{cast(value).first.name}'."
         end
 
-        option = super(name, value)
-        option.instance_eval(&) if block_given?
+        option = Option.new(name, value)
         option.freeze
-
-        const_set(name, option)
-        @options << option
+        @options[name] = option
         @values[value] = option
-      end
-
-      def const_from_val(val)
-        return val unless val.is_a?(Symbol) || val.is_a?(String)
-
-        const_name = val.to_s.split("_").collect { |w| w.sub(/^./, w[0].upcase) }.join
-        const_name = "#{name}::#{const_name}"
-        Object.const_get(const_name)
       end
     end
   end

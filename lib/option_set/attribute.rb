@@ -49,11 +49,11 @@ module OptionSet
         end
 
         klass.options.each do |member|
-          define_method("#{short_name}_#{member.short_name}?") do
-            send("has_#{short_name}?", member)
+          define_method("#{short_name}_#{member.name}?") do
+            send("has_#{short_name}?", member.name)
           end
-          define_method("#{short_name}_#{member.short_name}!") do
-            send("add_#{short_name}", member)
+          define_method("#{short_name}_#{member.name}!") do
+            send("add_#{short_name}", member.name)
             send("save!")
           end
         end
