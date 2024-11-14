@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Dan Loman"]
   spec.email = ["daniel.h.loman@gmail.com"]
 
-  spec.summary = "OptionSets for ActiveRecord"
-  spec.description = "OptionSets allow you to define a set of options and store them within a single integer column in your database. This can be useful for defining roles, permissions, or any other set of options that can be represented as a set of flags. This is inspired by Swift's OptionSet type. https://developer.apple.com/documentation/swift/optionset"
+  spec.summary = "OptionSet provides powerful handling of binary options for ActiveRecord"
+  spec.description = "OptionSet provides a powerful and flexible way to handle sets of binary options (flags/permissions) in ActiveRecord models using bitmasks. Inspired by Swift's OptionSet type. https://developer.apple.com/documentation/swift/optionset" # rubocop:disable Layout/LineLength
   spec.homepage = "https://github.com/namolnad/option_set"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"

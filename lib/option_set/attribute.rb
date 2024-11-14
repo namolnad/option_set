@@ -3,6 +3,7 @@
 require "active_support/concern"
 
 module OptionSet
+  # Attribute module to extend the ActiveRecord::Base class
   module Attribute
     extend ActiveSupport::Concern
 

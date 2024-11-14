@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class TestOptionSet < Minitest::Test
+class TestOptionSet < Minitest::Test # rubocop:disable Metrics/ClassLength
   def setup
     User.delete_all
   end

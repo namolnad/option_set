@@ -1,6 +1,6 @@
 # OptionSet
 
-OptionSet is a Ruby gem that provides a powerful and flexible way to handle sets of binary options (flags/permissions) in ActiveRecord models using bitmasks. It offers a clean DSL for defining and managing sets of options with efficient storage and rich set operations.
+OptionSet is a Ruby gem that provides a powerful and flexible way to handle sets of binary options (flags/permissions) in ActiveRecord models using bitmasks. It offers a clean DSL for defining and managing sets of options with efficient storage and rich set operations. Inspired by [Swift's OptionSet](https://developer.apple.com/documentation/swift/optionset) type.
 
 ## Installation
 

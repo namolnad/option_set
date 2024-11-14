@@ -3,7 +3,8 @@
 module OptionSet
   class Error < StandardError; end
 
-  class Base
+  # Base class for option sets
+  class Base # rubocop:disable Metrics/ClassLength
     include Enumerable
 
     class << self

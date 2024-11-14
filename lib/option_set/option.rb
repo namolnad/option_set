@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module OptionSet
+  # Option class to represent a single option
   class Option
     attr_reader :name, :value
 
