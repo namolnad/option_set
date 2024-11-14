@@ -20,7 +20,7 @@ $ bundle install
 
 ### Define Your Option Set
 
-First, create a class that inherits from `OptionSet::OptionSet` and define your options:
+First, create a class that inherits from `OptionSet::Base` and define your options:
 
 ```ruby
 class AdminPermission < OptionSet::Base
