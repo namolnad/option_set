@@ -9,7 +9,7 @@ require "minitest/autorun"
 require "minitest/pride"
 require "active_record"
 
-ActiveRecord::Base.logger = Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
+ActiveRecord::Base.logger = Logger.new(ENV["VERBOSE"] ? STDOUT : nil) # rubocop:disable Style/GlobalStdStream
 ActiveRecord::Migration.verbose = ENV["VERBOSE"]
 
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
