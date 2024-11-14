@@ -3,7 +3,7 @@
 module OptionSet
   class Error < StandardError; end
 
-  class OptionSet
+  class Base
     include Enumerable
 
     class << self

@@ -20,7 +20,7 @@ ActiveRecord::Schema.define do
   end
 end
 
-class AdminPermission < OptionSet::OptionSet
+class AdminPermission < OptionSet::Base
   view 1 << 0
   edit 1 << 1
   delete 1 << 2
