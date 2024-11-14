@@ -1,28 +1,100 @@
 # OptionSet
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/option_set`. To experiment with that code, run `bin/console` for an interactive prompt.
+OptionSet is a Ruby gem that provides a powerful and flexible way to handle sets of binary options (flags/permissions) in ActiveRecord models using bitmasks. It offers a clean DSL for defining and managing sets of options with efficient storage and rich set operations.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+gem 'option_set'
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+And then execute:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+$ bundle install
 ```
 
 ## Usage
 
-TODO: Write usage instructions here
+### Define Your Option Set
+
+First, create a class that inherits from `OptionSet::OptionSet` and define your options:
+
+```ruby
+class AdminPermission < OptionSet::Base
+  view 1 << 0    # 1
+  edit 1 << 1    # 2
+  delete 1 << 2  # 4
+end
+```
+
+### Set Up Your Model
+
+Add an integer column to store the bitmask:
+
+```ruby
+class CreateUsers < ActiveRecord::Migration[7.0]
+  def change
+    create_table :users do |t|
+      t.integer :admin_permissions_mask
+    end
+  end
+end
+```
+
+Include the option set in your model:
+
+```ruby
+class User < ActiveRecord::Base
+  option_set AdminPermission
+end
+```
+
+### Using the Option Set
+
+Basic operations:
+
+```ruby
+user = User.new
+user.admin_permissions = [:view, :edit]  # Set multiple permissions
+user.has_admin_permission?(:view)        # => true
+user.admin_permission_view?              # => true
+user.admin_permission_delete?            # => false
+
+# Add/Remove individual permissions
+user.add_admin_permission(:delete)
+user.remove_admin_permission(:edit)
+
+# Bang methods for immediate save
+user.admin_permission_edit!  # Adds :edit permission and saves
+```
+
+Set Operations:
+
+```ruby
+# Intersection
+user.admin_permissions_intersection([:view, :delete])
+
+# Union
+user.admin_permissions_union([:delete])
+
+# Difference
+user.admin_permissions_difference([:view, :delete])
+
+# Symmetric Difference
+user.admin_permissions_symmetric_difference([:view, :delete])
+
+# Set Comparisons
+user.admin_permissions_subset?([:view, :edit, :delete])
+user.admin_permissions_superset?([:view])
+user.admin_permissions_disjoint?([:delete])
+
+# Bulk Operations
+user.merge_admin_permissions([:edit, :delete])
+user.subtract_admin_permissions([:view, :edit])
+```
 
 ## Development
 
