@@ -36,29 +36,13 @@ module OptionSet
         true
       end
 
-      # returns the union of the two masks
-      def union(options, mask)
-        self.mask(options) | mask
-      end
-
-      # returns the intersection of the two masks
-      def intersection(options, mask)
-        self.mask(options) & mask
-      end
-
-      # returns the difference of the two masks
-      def difference(options, mask)
-        self.mask(options) & ~mask
-      end
-
       # returns the mask after adding the option
       def add(option, mask)
         mask | @options[option].value
       end
 
-      # returns the mask after removing the option
-      def remove(option, mask)
-        mask & ~@options[option].value
+      def all_options
+        options.map(&:name).map(&:to_sym)
       end
 
       # Casts the included mask to the corresponding options
@@ -66,9 +50,21 @@ module OptionSet
         options.select { |option| mask & option.value == option.value }.map(&:name).map(&:to_sym)
       end
 
-      # Returns the mask for the included options
-      def mask(options)
-        options.map { |o| @options[o].value }.reduce(0, :|)
+      # returns the difference of the two masks
+      def difference(options, mask)
+        self.mask(options) & ~mask
+      end
+
+      def disjoint?(options, mask)
+        (self.mask(options) & mask).zero?
+      end
+
+      def each(&block)
+        options.each(&block)
+      end
+
+      def eql?(options, mask)
+        self.mask(options) == mask
       end
 
       # Does the mask include the provided option?
@@ -77,25 +73,69 @@ module OptionSet
         mask & val == val
       end
 
-      def all
-        options.map(&:name).map(&:to_sym)
+      def intersect?(options, mask)
+        (self.mask(options) & mask) == self.mask(options)
       end
 
-      def values
-        @values.keys
+      # returns the intersection of the two masks
+      def intersection(options, mask)
+        self.mask(options) & mask
       end
 
-      def each(&block)
-        options.each(&block)
+      # Returns the mask for the included options
+      def mask(options)
+        options.map { |o| @options[o].value }.reduce(0, :|)
+      end
+
+      def merge(options, mask)
+        self.mask(options) | mask
       end
 
       def options
         @options.values
       end
 
+      def proper_subset?(options, mask)
+        (self.mask(options) != mask) && subset?(options, mask)
+      end
+
+      def proper_superset?(options, mask)
+        (self.mask(options) != mask) && superset?(options, mask)
+      end
+
+      # returns the mask after removing the option
+      def remove(option, mask)
+        mask & ~@options[option].value
+      end
+
+      def subset?(options, mask)
+        (self.mask(options) & mask) == mask
+      end
+
+      def subtract(options, mask)
+        mask & ~self.mask(options)
+      end
+
+      def superset?(options, mask)
+        (self.mask(options) & mask) == self.mask(options)
+      end
+
+      def symmetric_difference(options, mask)
+        self.mask(options) ^ mask
+      end
+
+      # returns the union of the two masks
+      def union(options, mask)
+        self.mask(options) | mask
+      end
+
+      def values
+        @values.keys
+      end
+
       private
 
-      def add_option(name, val = nil)
+      def add_option(name, val = nil) # rubocop:disable Metrics/MethodLength
         value = val || (1 << @options.length)
 
         if self == OptionSet
