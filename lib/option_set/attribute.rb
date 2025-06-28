@@ -64,7 +64,29 @@ module OptionSet
             send("add_#{short_name}", member.name)
             send("save!")
           end
+          define_singleton_method("#{short_name}_#{member.name}") do
+            options_matching(plural_name.to_sym => member.name)
+          end
         end
+
+        define_singleton_method("#{plural_name}_matching") do |options|
+          options_matching(plural_name.to_sym => options)
+        end
+
+        @_option_set_columns ||= []
+        @_option_set_columns << { column: table_name, short: plural_name.to_sym, klass: klass }
+      end
+
+      def options_matching(**kwargs)
+        rel = all
+        @_option_set_columns.each do |info|
+          requested = kwargs[info[:short]]
+          next unless requested
+
+          mask = info[:klass].mask(requested.is_a?(Array) ? requested : [requested])
+          rel = rel.where("#{info[:column]} & ? = ?", mask, mask)
+        end
+        rel
       end
     end
     # rubocop:enable Metrics/MethodLength,Metrics/AbcSize,Metrics/BlockLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity

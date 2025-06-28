@@ -17,6 +17,7 @@ ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 ActiveRecord::Schema.define do
   create_table :users do |t|
     t.integer :admin_permissions_mask
+    t.integer :roles_mask
   end
 end
 
@@ -26,6 +27,12 @@ class AdminPermission < OptionSet::Base
   delete 1 << 2
 end
 
+class Role < OptionSet::Base
+  manager 1 << 0
+  staff 1 << 1
+end
+
 class User < ActiveRecord::Base
   option_set AdminPermission
+  option_set Role
 end

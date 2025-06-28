@@ -96,6 +96,43 @@ user.merge_admin_permissions([:edit, :delete])
 user.subtract_admin_permissions([:view, :edit])
 ```
 
+### Querying by Options (Scopes & Helpers)
+
+You can query for records matching one or more options using the dynamically generated *_matching helpers
+or a generic options_matching helper.
+
+#### Querying a single option set
+
+```ruby
+# Find users with any of the specified permissions
+User.admin_permissions_matching([:view, :edit])
+```
+
+#### Querying multiple option sets at once
+
+Suppose you have multiple option sets:
+
+```ruby
+class User < ActiveRecord::Base
+  option_set AdminPermission
+  option_set Role
+end
+```
+
+You can query by both:
+
+```ruby
+User.options_matching(admin_permissions: [:view], roles: [:manager, :staff])
+```
+
+The *_matching helpers (e.g., admin_permissions_matching) delegate to options_matching under the hood.
+
+Alternatively, you can use the generated scopes for each option set:
+
+```ruby
+User.admin_permission_view.role_manager.role_staff
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
